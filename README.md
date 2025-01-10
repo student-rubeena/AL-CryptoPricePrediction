@@ -97,3 +97,6 @@ This project is licensed under the MIT License.
 
 Contact
 For any questions or feedback, please contact rubeenamaddarki85@gmail.com.
+
+Crypto predictor UI :
+![Screenshot (18)](https://github.com/user-attachments/assets/a36332cd-d2a5-406a-977c-5758b5b71bfa)
