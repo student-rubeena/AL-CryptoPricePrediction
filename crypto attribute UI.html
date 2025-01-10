@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Arbitrage Scanner</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.js"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col">
+    <header class="bg-gray-800 p-4 shadow-md">
+        <h1 class="text-2xl font-bold text-center">Crypto Arbitrage Scanner</h1>
+    </header>
+    <main class="flex-grow container mx-auto p-4">
+        <!-- Real-time Data Section -->
+        <section class="mb-8">
+            <h2 class="text-xl font-semibold mb-4">Real-Time Arbitrage Opportunities</h2>
+            <div id="arbitrage-data" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </section>
+
+        <!-- Chart Section -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4">Price Trend Chart</h2>
+            <canvas id="priceTrendChart" class="w-full"></canvas>
+        </section>
+    </main>
+    <footer class="bg-gray-800 p-4 text-center">
+        <p>Developed by Rubeena Maddarki &copy; 2025</p>
+    </footer>
+
+    <script>
+        // Mock data for initial load
+        const initialData = [
+            { exchange: 'Binance', pair: 'USDC/ETH', price: 1812.50, timestamp: new Date().toLocaleTimeString() },
+            { exchange: 'Solana DEX', pair: 'USDC/ETH', price: 1810.30, timestamp: new Date().toLocaleTimeString() }
+        ];
+
+        // Function to display real-time arbitrage data
+        function updateArbitrageData(data) {
+            const container = document.getElementById('arbitrage-data');
+            container.innerHTML = '';
+            data.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'bg-gray-800 p-4 rounded shadow';
+                card.innerHTML = `
+                    <h3 class="font-bold text-lg">${item.pair}</h3>
+                    <p>Exchange: <span class="font-semibold">${item.exchange}</span></p>
+                    <p>Price: <span class="font-semibold">${item.price} USDC</span></p>
+                    <p>Last Updated: <span class="font-semibold">${item.timestamp}</span></p>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Initial render
+        updateArbitrageData(initialData);
+
+        // Set up real-time updates using Socket.IO
+        const socket = io('https://your-backend-server-url');
+        socket.on('arbitrageUpdate', data => {
+            updateArbitrageData(data);
+        });
+
+        // Chart.js setup for price trend visualization
+        const ctx = document.getElementById('priceTrendChart').getContext('2d');
+        const priceTrendChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['10:00', '10:05', '10:10', '10:15'], // Mock labels
+                datasets: [
+                    {
+                        label: 'USDC/ETH Price (Binance)',
+                        data: [1810, 1812, 1811, 1813], // Mock data
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        fill: true
+                    },
+                    {
+                        label: 'USDC/ETH Price (Solana DEX)',
+                        data: [1808, 1810, 1809, 1811], // Mock data
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                }
+            }
+        });
+
+        // Mock real-time chart update
+        setInterval(() => {
+            const now = new Date().toLocaleTimeString();
+            const newPriceBinance = 1810 + Math.random() * 5;
+            const newPriceSolana = 1808 + Math.random() * 5;
+            priceTrendChart.data.labels.push(now);
+            priceTrendChart.data.datasets[0].data.push(newPriceBinance);
+            priceTrendChart.data.datasets[1].data.push(newPriceSolana);
+            if (priceTrendChart.data.labels.length > 10) {
+                priceTrendChart.data.labels.shift();
+                priceTrendChart.data.datasets[0].data.shift();
+                priceTrendChart.data.datasets[1].data.shift();
+            }
+            priceTrendChart.update();
+        }, 5000);
+    </script>
+</body>
+</html>
